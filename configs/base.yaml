@@ -1,0 +1,37 @@
+seed: 42
+
+data:
+  prepared_dir: data/processed
+  context_flank: 50
+  peptide_lengths: [8, 9, 10, 11, 12, 13, 14]
+  min_side_residues: 1
+  min_breakpoint_confidence: medium
+
+model:
+  name: facebook/esm2_t6_8M_UR50D
+  # Examples: facebook/esm2_t12_35M_UR50D, facebook/esm2_t33_650M_UR50D
+  max_length: 256
+  unfreeze_last_n_layers: 2
+
+training:
+  output_dir: outputs/fusionneo-esm2
+  epochs: 5
+  batch_size: 8
+  gradient_accumulation_steps: 1
+  learning_rate: 0.00005
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  fp16: true
+  logging_steps: 25
+  save_strategy: epoch
+  eval_strategy: epoch
+
+masking:
+  # random_fixed | cosine_uniform | cosine_junction
+  strategy: cosine_junction
+  min_rate: 0.15
+  max_rate: 0.40
+  junction_boost: 4.0
+  junction_tau: 6.0
+  fixed_rate: 0.15
+

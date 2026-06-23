@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fusionneo"
+version = "0.1.0"
+description = "Junction-aware protein language modeling for fusion neoantigens"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+  "biopython>=1.83",
+  "datasets>=2.19",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "pyarrow>=16",
+  "pyyaml>=6.0",
+  "requests>=2.31",
+  "scikit-learn>=1.4",
+  "torch>=2.2",
+  "transformers>=4.41",
+  "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+
+[project.scripts]
+fusionneo-download = "fusionneo.download:main"
+fusionneo-fetch-uniprot = "fusionneo.uniprot:main"
+fusionneo-prepare = "fusionneo.prepare:main"
+fusionneo-train = "fusionneo.train:main"
+fusionneo-embed = "fusionneo.embed:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
