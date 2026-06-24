@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import inspect
 import math
 from pathlib import Path
 
@@ -16,6 +17,22 @@ from transformers import (
 
 from .common import load_yaml, set_seed
 from .masking import JunctionMaskingCollator
+
+
+def make_training_args(**kwargs) -> TrainingArguments:
+    """Build TrainingArguments across transformers versions.
+
+    Some releases use ``evaluation_strategy`` while newer releases renamed the
+    argument to ``eval_strategy``. Keeping this small adapter avoids pinning the
+    project to one transformers version.
+    """
+    signature = inspect.signature(TrainingArguments.__init__)
+    parameters = signature.parameters
+    if "evaluation_strategy" not in parameters and "eval_strategy" in parameters:
+        kwargs["eval_strategy"] = kwargs.pop("evaluation_strategy")
+    elif "eval_strategy" not in parameters and "evaluation_strategy" in parameters:
+        kwargs["evaluation_strategy"] = kwargs.pop("eval_strategy", kwargs["evaluation_strategy"])
+    return TrainingArguments(**kwargs)
 
 
 def freeze_model(model: torch.nn.Module, unfreeze_last_n: int) -> None:
@@ -95,7 +112,7 @@ def main() -> None:
     )
     train_cfg = cfg["training"]
     use_fp16 = bool(train_cfg["fp16"]) and torch.cuda.is_available()
-    training_args = TrainingArguments(
+    training_args = make_training_args(
         output_dir=output_dir,
         num_train_epochs=1 if args.smoke_test else float(train_cfg["epochs"]),
         per_device_train_batch_size=batch_size,
